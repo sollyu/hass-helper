@@ -82,6 +82,7 @@ fi
 #
 # 安装Docker
 #
+DOWNLOAD_URL="https://mirrors.tuna.tsinghua.edu.cn/docker-ce"
 if ! curl -fsSL get.docker.com | sh ; then
     exit 30
 fi
