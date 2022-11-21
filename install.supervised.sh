@@ -14,12 +14,12 @@ fi
 # shellcheck disable=SC1091
 . /etc/os-release
 case $ID in
-    "ubuntu" | "debian")
+    "ubuntu" | "debian" | "centos")
         SYSTEM_TYPE="$ID"
         ;;
     * )
         echo "当前还不支持您的系统"
-        exit 02
+        exit 10
         ;;
 esac
 
@@ -32,7 +32,7 @@ case $SYSTEM_PLAT in
         ;;
     * )
         echo "暂时还不支持此CPU架构"
-        exit 03
+        exit 11
         ;;
 esac
 
@@ -40,16 +40,24 @@ esac
 # 安装环境依赖
 #
 case $SYSTEM_TYPE in
-    "ubuntu" | "armbian")
+    "ubuntu" | "debian")
         if ! apt update ; then
-            exit 04
+            exit 12
         fi
         if ! apt install apparmor jq wget curl udisks2 libglib2.0-bin network-manager dbus systemd-journal-remote -y ; then
-            exit 05
+            exit 13
+        fi
+        ;;
+    "centos")
+        if ! yum update ; then
+            exit 14
+        fi
+        if ! yum install apparmor jq wget curl udisks2 libglib2.0-bin network-manager dbus systemd-journal-remote -y ; then
+            exit 15
         fi
         ;;
     *)
-        exit 06
+        exit 16
         ;;
 esac
 
@@ -62,26 +70,69 @@ if [ -z "$GITHUB_OS_AGENT_LATEST" ]; then
 fi
 GITHUB_OS_AGENT_DOWNLOAD="https://ghproxy.com/https://github.com/home-assistant/os-agent/releases/download/${GITHUB_OS_AGENT_LATEST}/os-agent_${GITHUB_OS_AGENT_LATEST}_linux_${SYSTEM_PLAT}.deb"
 if ! wget "$GITHUB_OS_AGENT_DOWNLOAD"; then
-    exit 07
+    exit 20
 fi
 if [ ! -f "./os-agent_${GITHUB_OS_AGENT_LATEST}_linux_${SYSTEM_PLAT}.deb" ]; then
-    exit 08
+    exit 21
 fi
 if ! dpkg -i "os-agent_${GITHUB_OS_AGENT_LATEST}_linux_${SYSTEM_PLAT}.deb"; then
-    exit 09
+    exit 22
 fi
 
 #
 # 安装Docker
 #
 if ! curl -fsSL get.docker.com | sh ; then
-    exit 10
+    exit 30
 fi
 
-# hass
+#
+# 拉取国内镜像
+#
+function docker_pull_ghcr() {
+    if ! docker pull "ghcr.dockerproxy.com/$1"; then
+        exit 40
+    fi
+    if ! docker tag "ghcr.dockerproxy.com/$1" "ghcr.io/$1"; then
+        exit 41
+    fi
+    if ! docker rmi "ghcr.dockerproxy.com/$1"; then
+        exit 42
+    fi
+}
+rm -rf stable.json*
+wget "https://version.home-assistant.io/stable.json"
+HASS_STABLE_VERSION_SUPERVISOR=$(jq --raw-output ".supervisor" stable.json)
+HASS_STABLE_VERSION_OBSERVER=$(jq --raw-output ".observer" stable.json)
+HASS_STABLE_VERSION_CLI=$(jq --raw-output ".cli" stable.json)
+HASS_STABLE_VERSION_DNS=$(jq --raw-output ".dns" stable.json)
+HASS_STABLE_VERSION_AUDIO=$(jq --raw-output ".audio" stable.json)
+HASS_STABLE_VERSION_MULTICAST=$(jq --raw-output ".multicast" stable.json)
+docker_pull_ghcr "home-assistant/aarch64-hassio-supervisor:$HASS_STABLE_VERSION_SUPERVISOR"
+docker_pull_ghcr "home-assistant/aarch64-hassio-observer:$HASS_STABLE_VERSION_OBSERVER"
+docker_pull_ghcr "home-assistant/aarch64-hassio-cli:$HASS_STABLE_VERSION_CLI"
+docker_pull_ghcr "home-assistant/aarch64-hassio-dns:$HASS_STABLE_VERSION_DNS"
+docker_pull_ghcr "home-assistant/aarch64-hassio-audio:$HASS_STABLE_VERSION_AUDIO"
+docker_pull_ghcr "home-assistant/aarch64-hassio-multicast:$HASS_STABLE_VERSION_MULTICAST"
+case $SYSTEM_PLAT in
+    "aarch64")
+        HASS_STABLE_VERSION_HASS=$(jq --raw-output '.homeassistant."qemuarm-64"' stable.json)
+        docker_pull_ghcr "home-assistant/qemuarm-64-homeassistant:$HASS_STABLE_VERSION_HASS"
+        ;;
+    "x86_64")
+        HASS_STABLE_VERSION_HASS=$(jq --raw-output '.homeassistant."generic-x86-64"' stable.json)
+        docker_pull_ghcr "home-assistant/generic-x86-64-homeassistant:$HASS_STABLE_VERSION_HASS"
+        ;;
+esac
+
+
+#
+# 安装 supervised
+#
 if ! wget "https://ghproxy.com/https://github.com/home-assistant/supervised-installer/releases/latest/download/homeassistant-supervised.deb"; then
-    exit 11
+    exit 50
 fi
 if ! dpkg -i homeassistant-supervised.deb; then
-    exit 12
+    exit 51
 fi
+
