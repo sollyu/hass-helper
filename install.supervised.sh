@@ -137,7 +137,7 @@ case $SYSTEM_PLAT in
         docker_pull_ghcr "home-assistant/generic-x86-64-homeassistant:$HASS_STABLE_VERSION_HASS"
         ;;
 esac
-
+rm stable.json
 
 #
 # 安装 supervised
