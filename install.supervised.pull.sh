@@ -40,13 +40,13 @@ esac
 # 拉取国内镜像
 #
 function docker_pull_ghcr() {
-    if ! docker pull "ghcr.dockerproxy.com/$1"; then
+    if ! docker pull "ghcr.nju.edu.cn/$1"; then
         exit 40
     fi
-    if ! docker tag "ghcr.dockerproxy.com/$1" "ghcr.io/$1"; then
+    if ! docker tag "ghcr.nju.edu.cn/$1" "ghcr.io/$1"; then
         exit 41
     fi
-    if ! docker rmi "ghcr.dockerproxy.com/$1"; then
+    if ! docker rmi "ghcr.nju.edu.cn/$1"; then
         exit 42
     fi
 }
