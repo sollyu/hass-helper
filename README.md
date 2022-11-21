@@ -3,17 +3,17 @@
 ## supervised
 
 ```bash
-curl -s https://goo.gs/gqyrc | sh
+curl -s https://ghproxy.com/https://raw.githubusercontent.com/sollyu/hass-helper/develop/install.supervised.sh | sh
 ```
 
 ## HACS
 
 ```bash
-curl -s https://goo.gs/ape3y | sh
+curl -s https://ghproxy.com/https://raw.githubusercontent.com/sollyu/hass-helper/develop/install.hacs.sh | sh
 ```
 
 ## container
 
 ```bash
-curl -s https://goo.gs/acoz3 | sh
+curl -s https://ghproxy.com/https://raw.githubusercontent.com/sollyu/hass-helper/develop/install.container.sh | sh
 ```

@@ -49,7 +49,7 @@ case $SYSTEM_TYPE in
         fi
         ;;
     "centos")
-        if ! yum update ; then
+        if ! yum check-update ; then
             exit 14
         fi
         if ! yum install apparmor jq wget curl udisks2 libglib2.0-bin network-manager dbus systemd-journal-remote -y ; then
