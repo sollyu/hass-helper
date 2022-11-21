@@ -78,6 +78,9 @@ fi
 if ! dpkg -i "os-agent_${GITHUB_OS_AGENT_LATEST}_linux_${SYSTEM_PLAT}.deb"; then
     exit 22
 fi
+if ! rm "os-agent_${GITHUB_OS_AGENT_LATEST}_linux_${SYSTEM_PLAT}.deb"; then
+    exit 23
+fi 
 
 #
 # 安装Docker
@@ -101,6 +104,8 @@ function docker_pull_ghcr() {
         exit 42
     fi
 }
+
+
 rm -rf stable.json*
 wget "https://version.home-assistant.io/stable.json"
 HASS_STABLE_VERSION_SUPERVISOR=$(jq --raw-output ".supervisor" stable.json)
@@ -109,19 +114,26 @@ HASS_STABLE_VERSION_CLI=$(jq --raw-output ".cli" stable.json)
 HASS_STABLE_VERSION_DNS=$(jq --raw-output ".dns" stable.json)
 HASS_STABLE_VERSION_AUDIO=$(jq --raw-output ".audio" stable.json)
 HASS_STABLE_VERSION_MULTICAST=$(jq --raw-output ".multicast" stable.json)
-docker_pull_ghcr "home-assistant/aarch64-hassio-supervisor:$HASS_STABLE_VERSION_SUPERVISOR"
-docker_pull_ghcr "home-assistant/aarch64-hassio-observer:$HASS_STABLE_VERSION_OBSERVER"
-docker_pull_ghcr "home-assistant/aarch64-hassio-cli:$HASS_STABLE_VERSION_CLI"
-docker_pull_ghcr "home-assistant/aarch64-hassio-dns:$HASS_STABLE_VERSION_DNS"
-docker_pull_ghcr "home-assistant/aarch64-hassio-audio:$HASS_STABLE_VERSION_AUDIO"
-docker_pull_ghcr "home-assistant/aarch64-hassio-multicast:$HASS_STABLE_VERSION_MULTICAST"
+
 case $SYSTEM_PLAT in
     "aarch64")
         HASS_STABLE_VERSION_HASS=$(jq --raw-output '.homeassistant."qemuarm-64"' stable.json)
+        docker_pull_ghcr "home-assistant/aarch64-hassio-supervisor:$HASS_STABLE_VERSION_SUPERVISOR"
+        docker_pull_ghcr "home-assistant/aarch64-hassio-observer:$HASS_STABLE_VERSION_OBSERVER"
+        docker_pull_ghcr "home-assistant/aarch64-hassio-cli:$HASS_STABLE_VERSION_CLI"
+        docker_pull_ghcr "home-assistant/aarch64-hassio-dns:$HASS_STABLE_VERSION_DNS"
+        docker_pull_ghcr "home-assistant/aarch64-hassio-audio:$HASS_STABLE_VERSION_AUDIO"
+        docker_pull_ghcr "home-assistant/aarch64-hassio-multicast:$HASS_STABLE_VERSION_MULTICAST"
         docker_pull_ghcr "home-assistant/qemuarm-64-homeassistant:$HASS_STABLE_VERSION_HASS"
         ;;
     "x86_64")
         HASS_STABLE_VERSION_HASS=$(jq --raw-output '.homeassistant."generic-x86-64"' stable.json)
+        docker_pull_ghcr "home-assistant/amd64-hassio-supervisor:$HASS_STABLE_VERSION_SUPERVISOR"
+        docker_pull_ghcr "home-assistant/amd64-hassio-observer:$HASS_STABLE_VERSION_OBSERVER"
+        docker_pull_ghcr "home-assistant/amd64-hassio-cli:$HASS_STABLE_VERSION_CLI"
+        docker_pull_ghcr "home-assistant/amd64-hassio-dns:$HASS_STABLE_VERSION_DNS"
+        docker_pull_ghcr "home-assistant/amd64-hassio-audio:$HASS_STABLE_VERSION_AUDIO"
+        docker_pull_ghcr "home-assistant/amd64-hassio-multicast:$HASS_STABLE_VERSION_MULTICAST"
         docker_pull_ghcr "home-assistant/generic-x86-64-homeassistant:$HASS_STABLE_VERSION_HASS"
         ;;
 esac
