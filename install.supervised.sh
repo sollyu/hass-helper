@@ -14,7 +14,7 @@ fi
 # shellcheck disable=SC1091
 . /etc/os-release
 case $ID in
-    "ubuntu" | "armbian")
+    "ubuntu" | "debian")
         SYSTEM_TYPE="$ID"
         ;;
     * )
