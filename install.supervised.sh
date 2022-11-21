@@ -118,7 +118,7 @@ HASS_STABLE_VERSION_MULTICAST=$(jq --raw-output ".multicast" stable.json)
 case $SYSTEM_PLAT in
     "aarch64")
         HASS_STABLE_VERSION_HASS=$(jq --raw-output '.homeassistant."qemuarm-64"' stable.json)
-        docker_pull_ghcr "home-assistant/aarch64-hassio-supervisor:$HASS_STABLE_VERSION_SUPERVISOR"
+        docker_pull_ghcr "home-assistant/aarch64-hassio-supervisor:latest"
         docker_pull_ghcr "home-assistant/aarch64-hassio-observer:$HASS_STABLE_VERSION_OBSERVER"
         docker_pull_ghcr "home-assistant/aarch64-hassio-cli:$HASS_STABLE_VERSION_CLI"
         docker_pull_ghcr "home-assistant/aarch64-hassio-dns:$HASS_STABLE_VERSION_DNS"
@@ -128,7 +128,7 @@ case $SYSTEM_PLAT in
         ;;
     "x86_64")
         HASS_STABLE_VERSION_HASS=$(jq --raw-output '.homeassistant."generic-x86-64"' stable.json)
-        docker_pull_ghcr "home-assistant/amd64-hassio-supervisor:$HASS_STABLE_VERSION_SUPERVISOR"
+        docker_pull_ghcr "home-assistant/amd64-hassio-supervisor:latest"
         docker_pull_ghcr "home-assistant/amd64-hassio-observer:$HASS_STABLE_VERSION_OBSERVER"
         docker_pull_ghcr "home-assistant/amd64-hassio-cli:$HASS_STABLE_VERSION_CLI"
         docker_pull_ghcr "home-assistant/amd64-hassio-dns:$HASS_STABLE_VERSION_DNS"
