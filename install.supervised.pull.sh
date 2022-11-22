@@ -37,70 +37,16 @@ case $SYSTEM_PLAT in
 esac
 
 #
-# 安装环境依赖
-#
-case $SYSTEM_TYPE in
-    "ubuntu" | "debian")
-        if ! apt update ; then
-            exit 12
-        fi
-        if ! apt install apparmor jq wget curl udisks2 libglib2.0-bin network-manager dbus systemd-journal-remote -y ; then
-            exit 13
-        fi
-        ;;
-    "centos")
-        if ! yum check-update ; then
-            exit 14
-        fi
-        if ! yum install apparmor jq wget curl udisks2 libglib2.0-bin network-manager dbus systemd-journal-remote -y ; then
-            exit 15
-        fi
-        ;;
-    *)
-        exit 16
-        ;;
-esac
-
-#
-# os-agent下载&安装
-#
-GITHUB_OS_AGENT_LATEST=$(curl -s "https://api.github.com/repos/home-assistant/os-agent/releases/latest" | jq --raw-output ".name")
-if [ -z "$GITHUB_OS_AGENT_LATEST" ]; then
-    GITHUB_OS_AGENT_LATEST=1.4.1
-fi
-GITHUB_OS_AGENT_DOWNLOAD="https://ghproxy.com/https://github.com/home-assistant/os-agent/releases/download/${GITHUB_OS_AGENT_LATEST}/os-agent_${GITHUB_OS_AGENT_LATEST}_linux_${SYSTEM_PLAT}.deb"
-if ! wget "$GITHUB_OS_AGENT_DOWNLOAD"; then
-    exit 20
-fi
-if [ ! -f "./os-agent_${GITHUB_OS_AGENT_LATEST}_linux_${SYSTEM_PLAT}.deb" ]; then
-    exit 21
-fi
-if ! dpkg -i "os-agent_${GITHUB_OS_AGENT_LATEST}_linux_${SYSTEM_PLAT}.deb"; then
-    exit 22
-fi
-if ! rm "os-agent_${GITHUB_OS_AGENT_LATEST}_linux_${SYSTEM_PLAT}.deb"; then
-    exit 23
-fi 
-
-#
-# 安装Docker
-#
-DOWNLOAD_URL="https://mirrors.tuna.tsinghua.edu.cn/docker-ce"
-if ! curl -fsSL get.docker.com | sh ; then
-    exit 30
-fi
-
-#
 # 拉取国内镜像
 #
 function docker_pull_ghcr() {
-    if ! docker pull "ghcr.dockerproxy.com/$1"; then
+    if ! docker pull "ghcr.nju.edu.cn/$1"; then
         exit 40
     fi
-    if ! docker tag "ghcr.dockerproxy.com/$1" "ghcr.io/$1"; then
+    if ! docker tag "ghcr.nju.edu.cn/$1" "ghcr.io/$1"; then
         exit 41
     fi
-    if ! docker rmi "ghcr.dockerproxy.com/$1"; then
+    if ! docker rmi "ghcr.nju.edu.cn/$1"; then
         exit 42
     fi
 }
@@ -108,7 +54,6 @@ function docker_pull_ghcr() {
 
 rm -rf stable.json*
 wget "https://version.home-assistant.io/stable.json"
-HASS_STABLE_VERSION_SUPERVISOR=$(jq --raw-output ".supervisor" stable.json)
 HASS_STABLE_VERSION_OBSERVER=$(jq --raw-output ".observer" stable.json)
 HASS_STABLE_VERSION_CLI=$(jq --raw-output ".cli" stable.json)
 HASS_STABLE_VERSION_DNS=$(jq --raw-output ".dns" stable.json)
@@ -148,4 +93,3 @@ fi
 if ! dpkg -i homeassistant-supervised.deb; then
     exit 51
 fi
-
