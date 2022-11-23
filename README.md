@@ -34,3 +34,9 @@ curl -s https://ghproxy.com/https://raw.githubusercontent.com/sollyu/hass-helper
 ```bash
 curl -s https://ghproxy.com/https://raw.githubusercontent.com/sollyu/hass-helper/develop/install.container.sh | bash
 ```
+
+## LICENSE
+
+```
+
+```

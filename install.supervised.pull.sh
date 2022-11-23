@@ -15,7 +15,6 @@ fi
 . /etc/os-release
 case $ID in
     "ubuntu" | "debian" | "centos")
-        SYSTEM_TYPE="$ID"
         ;;
     * )
         echo "当前还不支持您的系统"
@@ -40,29 +39,36 @@ esac
 # 拉取国内镜像
 #
 function docker_pull_ghcr() {
-    if ! docker pull "ghcr.nju.edu.cn/$1"; then
+    if [ -z "$DOCKER_PULL_PROXY" ]; then
+        DOCKER_PULL_PROXY=ghcr.nju.edu.cn
+    fi
+
+    if ! docker pull "$DOCKER_PULL_PROXY/$1"; then
         exit 40
     fi
-    if ! docker tag "ghcr.nju.edu.cn/$1" "ghcr.io/$1"; then
+
+    if [ "$DOCKER_PULL_PROXY" == "ghcr.io" ] ; then
+        return
+    fi
+
+    if ! docker tag "$DOCKER_PULL_PROXY/$1" "ghcr.io/$1"; then
         exit 41
     fi
-    if ! docker rmi "ghcr.nju.edu.cn/$1"; then
+    if ! docker rmi "$DOCKER_PULL_PROXY/$1"; then
         exit 42
     fi
 }
 
-
-rm -rf stable.json*
-wget "https://version.home-assistant.io/stable.json"
-HASS_STABLE_VERSION_OBSERVER=$(jq --raw-output ".observer" stable.json)
-HASS_STABLE_VERSION_CLI=$(jq --raw-output ".cli" stable.json)
-HASS_STABLE_VERSION_DNS=$(jq --raw-output ".dns" stable.json)
-HASS_STABLE_VERSION_AUDIO=$(jq --raw-output ".audio" stable.json)
-HASS_STABLE_VERSION_MULTICAST=$(jq --raw-output ".multicast" stable.json)
+HASS_STABLE_JSON=$(curl -s "https://version.home-assistant.io/stable.json" | jq)
+HASS_STABLE_VERSION_OBSERVER=$(echo "$HASS_STABLE_JSON" | jq --raw-output ".observer")
+HASS_STABLE_VERSION_CLI=$(echo "$HASS_STABLE_JSON" | jq --raw-output ".cli")
+HASS_STABLE_VERSION_DNS=$(echo "$HASS_STABLE_JSON" | jq --raw-output ".dns")
+HASS_STABLE_VERSION_AUDIO=$(echo "$HASS_STABLE_JSON" | jq --raw-output ".audio")
+HASS_STABLE_VERSION_MULTICAST=$(echo "$HASS_STABLE_JSON" | jq --raw-output ".multicast")
 
 case $SYSTEM_PLAT in
     "aarch64")
-        HASS_STABLE_VERSION_HASS=$(jq --raw-output '.homeassistant."qemuarm-64"' stable.json)
+        HASS_STABLE_VERSION_HASS=$(echo "$HASS_STABLE_JSON" | jq --raw-output '.homeassistant."qemuarm-64"')
         docker_pull_ghcr "home-assistant/qemuarm-64-homeassistant:$HASS_STABLE_VERSION_HASS"
         docker_pull_ghcr "home-assistant/aarch64-hassio-supervisor:latest"
         docker_pull_ghcr "home-assistant/aarch64-hassio-observer:$HASS_STABLE_VERSION_OBSERVER"
@@ -72,7 +78,7 @@ case $SYSTEM_PLAT in
         docker_pull_ghcr "home-assistant/aarch64-hassio-multicast:$HASS_STABLE_VERSION_MULTICAST"
         ;;
     "x86_64")
-        HASS_STABLE_VERSION_HASS=$(jq --raw-output '.homeassistant."generic-x86-64"' stable.json)
+        HASS_STABLE_VERSION_HASS=$(echo "$HASS_STABLE_JSON" | jq --raw-output '.homeassistant."generic-x86-64"')
         docker_pull_ghcr "home-assistant/generic-x86-64-homeassistant:$HASS_STABLE_VERSION_HASS"
         docker_pull_ghcr "home-assistant/amd64-hassio-supervisor:latest"
         docker_pull_ghcr "home-assistant/amd64-hassio-observer:$HASS_STABLE_VERSION_OBSERVER"
@@ -82,11 +88,13 @@ case $SYSTEM_PLAT in
         docker_pull_ghcr "home-assistant/amd64-hassio-multicast:$HASS_STABLE_VERSION_MULTICAST"
         ;;
 esac
-rm stable.json
 
 #
 # 安装 supervised
 #
+if [ -f "homeassistant-supervised.deb" ]; then
+    rm "homeassistant-supervised.deb"
+fi
 if ! wget "https://ghproxy.com/https://github.com/home-assistant/supervised-installer/releases/latest/download/homeassistant-supervised.deb"; then
     exit 50
 fi
