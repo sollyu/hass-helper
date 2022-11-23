@@ -12,27 +12,27 @@
 
 ⬇️ 第一次执行一键安装
 ```bash
-curl -s https://ghproxy.com/https://raw.githubusercontent.com/sollyu/hass-helper/develop/install.supervised.sh | bash
+curl -s https://ghproxy.com/https://raw.githubusercontent.com/sollyu/hass-helper/main/install.supervised.sh | bash
 ```
 
 ⬇️ 拉取Docker镜像奇慢无比继续执行的脚本
 
 ```bash
-curl -s https://ghproxy.com/https://raw.githubusercontent.com/sollyu/hass-helper/develop/install.supervised.pull.sh | bash
+curl -s https://ghproxy.com/https://raw.githubusercontent.com/sollyu/hass-helper/main/install.supervised.pull.sh | bash
 ```
 
 ## HACS
 
 ⬇️ HACS 自动安装脚本
 ```bash
-curl -s https://ghproxy.com/https://raw.githubusercontent.com/sollyu/hass-helper/develop/install.hacs.sh | bash
+curl -s https://ghproxy.com/https://raw.githubusercontent.com/sollyu/hass-helper/main/install.hacs.sh | bash
 ```
 
 ## Container
 
 ⬇️ Docker容器版 目前还没写，打算直接贴Docker命令
 ```bash
-curl -s https://ghproxy.com/https://raw.githubusercontent.com/sollyu/hass-helper/develop/install.container.sh | bash
+curl -s https://ghproxy.com/https://raw.githubusercontent.com/sollyu/hass-helper/main/install.container.sh | bash
 ```
 
 ## LICENSE
