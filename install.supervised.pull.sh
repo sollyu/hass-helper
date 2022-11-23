@@ -40,7 +40,8 @@ esac
 #
 function docker_pull_ghcr() {
     if [ -z "$DOCKER_PULL_PROXY" ]; then
-        DOCKER_PULL_PROXY=ghcr.nju.edu.cn
+        DOCKER_PULL_PROXY=ghcr.dockerproxy.com
+        # DOCKER_PULL_PROXY=ghcr.nju.edu.cn
     fi
 
     if ! docker pull "$DOCKER_PULL_PROXY/$1"; then
@@ -54,6 +55,7 @@ function docker_pull_ghcr() {
     if ! docker tag "$DOCKER_PULL_PROXY/$1" "ghcr.io/$1"; then
         exit 41
     fi
+
     if ! docker rmi "$DOCKER_PULL_PROXY/$1"; then
         exit 42
     fi
