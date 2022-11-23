@@ -64,21 +64,21 @@ esac
 #
 # os-agent下载&安装
 #
-GITHUB_OS_AGENT_LATEST=$(curl -s "https://api.github.com/repos/home-assistant/os-agent/releases/latest" | jq --raw-output ".name")
-if [ -z "$GITHUB_OS_AGENT_LATEST" ]; then
-    GITHUB_OS_AGENT_LATEST=1.4.1
+GITHUB_OS_AGENT_VERSION=$(curl -s "https://api.github.com/repos/home-assistant/os-agent/releases/latest" | jq --raw-output ".name")
+if [ -z "$GITHUB_OS_AGENT_VERSION" ]; then
+    GITHUB_OS_AGENT_VERSION=1.4.1
 fi
-GITHUB_OS_AGENT_DOWNLOAD="https://ghproxy.com/https://github.com/home-assistant/os-agent/releases/download/${GITHUB_OS_AGENT_LATEST}/os-agent_${GITHUB_OS_AGENT_LATEST}_linux_${SYSTEM_PLAT}.deb"
+GITHUB_OS_AGENT_DOWNLOAD="https://ghproxy.com/https://github.com/home-assistant/os-agent/releases/download/${GITHUB_OS_AGENT_VERSION}/os-agent_${GITHUB_OS_AGENT_VERSION}_linux_${SYSTEM_PLAT}.deb"
 if ! wget "$GITHUB_OS_AGENT_DOWNLOAD"; then
     exit 20
 fi
-if [ ! -f "./os-agent_${GITHUB_OS_AGENT_LATEST}_linux_${SYSTEM_PLAT}.deb" ]; then
+if [ ! -f "./os-agent_${GITHUB_OS_AGENT_VERSION}_linux_${SYSTEM_PLAT}.deb" ]; then
     exit 21
 fi
-if ! dpkg -i "os-agent_${GITHUB_OS_AGENT_LATEST}_linux_${SYSTEM_PLAT}.deb"; then
+if ! dpkg -i "os-agent_${GITHUB_OS_AGENT_VERSION}_linux_${SYSTEM_PLAT}.deb"; then
     exit 22
 fi
-if ! rm "os-agent_${GITHUB_OS_AGENT_LATEST}_linux_${SYSTEM_PLAT}.deb"; then
+if ! rm "os-agent_${GITHUB_OS_AGENT_VERSION}_linux_${SYSTEM_PLAT}.deb"; then
     exit 23
 fi
 
