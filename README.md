@@ -15,7 +15,7 @@
 curl -s https://ghproxy.com/https://raw.githubusercontent.com/sollyu/hass-helper/main/install.supervised.sh | bash
 ```
 
-⬇️ 拉取Docker镜像奇慢无比继续执行的脚本
+⬇️ 拉取Docker镜像奇慢无比，可中断上面的命令，继续执行这个脚本
 
 ```bash
 curl -s https://ghproxy.com/https://raw.githubusercontent.com/sollyu/hass-helper/main/install.supervised.pull.sh | bash

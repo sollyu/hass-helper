@@ -1,5 +1,13 @@
 #!/bin/bash
 
+#####################[颜色-开始]######################
+COLOR_RED="\033[31m"
+COLOR_GREEN="\033[32m"
+COLOR_YELLOW="\033[33m"
+COLOR_BLUE="\033[34m"
+COLOR_END="\033[0m"
+#####################[颜色-结束]######################
+
 #
 # 检查系统
 #
@@ -46,6 +54,20 @@ case $SYSTEM_TYPE in
         fi
         if ! apt install apparmor jq wget curl udisks2 libglib2.0-bin network-manager dbus systemd-journal-remote -y ; then
             exit 13
+        fi
+        ;;
+    "openwrt")
+        echo -e "#################################################"
+        echo -e "# OpenWrt非常不建议使用supervised版本"
+        echo -e "# 因为它会污染OpenWrt的稳定性，并且兼容性也不好"
+        echo -e "# 如果您要继续安装 请${COLOR_GREEN}等待20秒${COLOR_END} 否则请立即按下【${COLOR_RED}Crtl+C${COLOR_END}】"
+        echo -e "#################################################"
+        sleep 20
+        if ! opkg update; then
+            exit 17
+        fi
+        if ! opkg install apparmor jq wget curl udisks2 libglib2.0-bin network-manager dbus systemd-journal-remote -y; then
+            exit 18
         fi
         ;;
     "centos")
@@ -157,3 +179,7 @@ fi
 if ! dpkg -i homeassistant-supervised.deb; then
     exit 51
 fi
+
+# 
+# 修正armbian运行时的错误
+# 
